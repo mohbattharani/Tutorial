@@ -8,10 +8,9 @@ import glob
 import h5py
 from  keras.utils import to_categorical
 from PIL import Image
+from imgaug import augmenters as iaa
 
-from keras.preprocessing.image import array_to_img, img_to_array, load_img
-
-
+# https://github.com/aleju/imgaug
 seq = iaa.Sequential([
     iaa.Crop(px=(0, 40)),
     iaa.GaussianBlur(sigma=(0, 3.0)), # blur images with a sigma of 0 to 3.0
@@ -20,11 +19,16 @@ seq = iaa.Sequential([
                rotate = (-20, 20)  ),
     
 ])
+
+# ===============================================
+#### augment image batch as defined in seq object  
 def augment(batch):
     batch = seq.augment_images(batch)
     return batch
 
 
+# ===============================================
+#### Rotate image around center of the image
 def rotate(image, angle):
     """
     Rotate an OpenCV 2 / NumPy image around it's centre by the given angle
@@ -62,6 +66,8 @@ def rotate(image, angle):
 
     return result
 
+# ===============================================
+#### load image and rotate if required
 def imread(image_path, angle=None):
     im = cv2.imread(image_path)
     image_size = (256, 256)
@@ -73,6 +79,8 @@ def imread(image_path, angle=None):
 
     return im
 
+# ===============================================
+#### load batch of image where batch_path contains full paths to images
 def load_batch(batch_path, angle=None, aug= False):
     if (len(batch_path)<1):
     	print('Error: empty batch')
@@ -87,6 +95,7 @@ def load_batch(batch_path, angle=None, aug= False):
 
 # reads paths to all images in GTCrossView dataset.
 # im_type = streetview, overhead
+# For general purpose, im_type='' 
 def read_GTCrossView(dataset_path, folders, im_type, ext ='.jpg'):
 
     paths_X = []    
@@ -98,6 +107,8 @@ def read_GTCrossView(dataset_path, folders, im_type, ext ='.jpg'):
 
     return paths_X
 
+# ===============================================
+## This is customized code to read paths of all images in LandUse dataset and label each class with unique number
 def read_landUse(dataset_path, im_type):
     import glob
     paths_X = []   
@@ -116,6 +127,8 @@ def read_landUse(dataset_path, im_type):
 
     return paths_X, labels
 
+# ===============================================
+# General function to read paths to all files (images) in provided list of folders
 def read_imPaths(dataset_path, folders, im_type):
     import glob
     paths_X = []    
@@ -127,7 +140,8 @@ def read_imPaths(dataset_path, folders, im_type):
 
     return paths_X
 
-
+# ===============================================
+# This function splits data into train and validation/test set where each fifth image is taken as val/test image
 def train_val_splitx(X):
     train_x = []
     val_x = []
@@ -151,6 +165,9 @@ def load_cnn_features(path, dataset, feature_name):
     r,c = features.shape
     features = features.reshape(r,c,1)
     return features
+
+# ===============================================
+# load .npy file provided complete path
 
 def load_encoder_features (path, feature_name):
     path_features = os.path.join(path, feature_name+'.npy')
