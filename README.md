@@ -1,11 +1,11 @@
 This repository contains helping code that has been written in different projects. 
 
 
-# util.py
+## util.py
 This file contains basic IO and augmentation codes for image. 
 
 
-# keras_util
+## keras_util
 
 #### GlobalSumPooling2D: 
 Keras has GlobalMaxPooling2D class which has modified here for sum pooling. 
